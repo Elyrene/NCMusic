@@ -62,7 +62,7 @@ const handleSearch = () => {
 
 .top-nav-inner{
   display: flex;
-  width: 70%;
+  width: 100%;
   padding: 0 32px;
   align-items: center;
   justify-content: flex-start;
@@ -139,6 +139,11 @@ const handleSearch = () => {
 .login-btn:hover{
   background-color: #c71313;
   color: #f5f7fb;
+}
+
+.main-view{
+  display: flex;
+  width: 70%;
 }
 
 </style>

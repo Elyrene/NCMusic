@@ -62,7 +62,7 @@ const handleSearch = () => {
 
 .top-nav-inner{
   display: flex;
-  width: 100%;
+  width: 70%;
   padding: 0 32px;
   align-items: center;
   justify-content: flex-start;
@@ -103,46 +103,42 @@ const handleSearch = () => {
   background-color: #df1515;
 }
 
-.login-btn{
-  color: #db2626;
-  text-decoration: none;
-  font-size: 16px;
-  padding: 8px 16px;
-  border-radius: 18px;
-  transition: all 0.2s;
-  
-}
-
-.login-btn:hover{
-  color: #e5e5e5;
-  background-color: #db2626;
-  text-decoration: none;
-  font-size: 16px;
-  padding: 8px 16px;
-  border-radius: 18px;
-  transition: all 0.2s;
-}
-
 .nav-actions{
-  display: flex;
+  margin-left: auto;
   align-items: center;
-  justify-content: center;
-}
-
-.search-box{
+  float: right;
   display: flex;
 }
 
 .search-input{
-  border-radius: 18px;
-  height: 18px;
-  
+  width: 180px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  border: none;
+  outline: none;
+  background-color: #fff;
+  font-size: 16px;
 }
 
-.main-view{
-  display: flex;
+.search-box{  
+  justify-content: right;
 }
 
+.login-btn{
+  padding: 6px 16px;
+  margin: 1em;
+  border-radius: 9999px;
+  border: 1px solid #c71313;
+  color: #c71313;
+  font-size: 16px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
 
+.login-btn:hover{
+  background-color: #c71313;
+  color: #f5f7fb;
+}
 
 </style>

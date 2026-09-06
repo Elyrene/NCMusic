@@ -62,6 +62,7 @@ const handleSearch = () => {
 
 .top-nav-inner{
   display: flex;
+  max-width: 1200px;
   width: 100%;
   padding: 0 32px;
   align-items: center;
@@ -142,8 +143,7 @@ const handleSearch = () => {
 }
 
 .main-view{
-  display: flex;
-  width: 70%;
+  flex: 1;
 }
 
 </style>

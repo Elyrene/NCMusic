@@ -30,7 +30,7 @@ onMounted(() => {
         <li 
         v-for="item in playlists"
         :key="item.id"
-        class="palylist-item"
+        class="playlist-item"
         >
           <div class="cover-wrapper">
             <img :src="item.picUrl" :alt="item.name">
@@ -41,11 +41,12 @@ onMounted(() => {
           </div>
         </li>
       </ul>
+      <h2 class="section-title">推荐新音乐</h2>
     </div>
   </div>
 </template>
 
-<style>
+<style scoped>
 
 .hall-wrapper {
   display: flex;

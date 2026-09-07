@@ -1,4 +1,4 @@
-export interface Post {
+interface Post {
 	userId: number;
 	code: number;
 	id: number;
@@ -6,16 +6,16 @@ export interface Post {
 	body: string;
 }
 
-export interface PlaylistItem {
-	id: number;
-	name: string;
-	copyright: string | '';
-	picUrl: string;
-}
-
-export interface PersonalizedResponse {
+interface PersonalizedRes {
 	hasTest: boolean;
 	code: number;
 	category: number;
 	result: PlaylistItem[];
+}
+
+interface PersonalizedNewSongRes {
+  hasTest: boolean;
+	code: number;
+	category: number;
+	result: NewSongItem[];
 }

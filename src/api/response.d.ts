@@ -14,8 +14,14 @@ interface PersonalizedRes {
 }
 
 interface PersonalizedNewSongRes {
-  hasTest: boolean;
+	hasTest: boolean;
 	code: number;
 	category: number;
 	result: NewSongItem[];
+}
+
+interface TopArtistsRes {
+	hasTest: boolean;
+	code: number;
+	artists: ArtistItem[];
 }

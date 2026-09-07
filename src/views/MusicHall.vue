@@ -1,11 +1,36 @@
 <script setup lang="ts">
 
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { api } from '@/api';
 
 const playlists = ref<playList[]>([]);
 
-const newSongs = ref<NewSong[]>([])
+const newSongs = ref<NewSong[]>([]);
+
+const singerRank = ref<Artist[]>([]);
+
+const currentSingerSlide = ref<number>(0);
+
+const SINGER_PAGE_SIZE = 5;
+
+const singerSlides = computed(() => {
+  const list = singerRank.value || [];
+  const sliders = [];
+  for (let i = 0; i < list.length; i += SINGER_PAGE_SIZE) {
+    sliders.push(list.slice(i, i + SINGER_PAGE_SIZE));
+  }
+  return sliders;
+});
+
+const prevSingerSlide = () => {
+  if (!singerSlides.value.length) return;
+  currentSingerSlide.value = (currentSingerSlide.value - 1 + singerSlides.value.length) % singerSlides.value.length;
+}
+
+const nextSingerSlide = () => {
+  if (!singerSlides.value.length) return;
+  currentSingerSlide.value = (currentSingerSlide.value + 1) % singerSlides.value.length;
+}
 
 const fetchPlaylist = async () => {
   try {
@@ -39,9 +64,26 @@ const fetchNewSongs = async () => {
   }
 }
 
+const fetchSingerRank = async () => {
+  try {
+    const data = await api.get<TopArtistsRes>('/top/artists', { limit: 20 });
+    
+    singerRank.value = (data.artists || []).map((item, index) => ({
+      id: item.id,
+      name: item.name,
+      rank: index++,
+      avatar: item.picUrl,
+    }));
+    console.log(singerRank.value);
+  } catch (err) {
+    console.log("获取歌手榜单失败", err);
+  }
+}
+
 onMounted(() => {
   fetchPlaylist();
   fetchNewSongs();
+  fetchSingerRank();
 })
 
 </script>
@@ -81,6 +123,31 @@ onMounted(() => {
           </div>
         </li>
       </ul>
+      <h2 class="section-title section-title--sub section-title--singer">歌手榜单</h2>
+      <div class="singer-carousel" v-if="singerSlides.length">
+        <div class="singer-carousel-track">
+          <div 
+            v-for="(sliders, index) in singerSlides"
+            :key="index"
+            class="singer-slide"
+            v-show="index == currentSingerSlide"
+            >
+            <ul class="singer-list">
+              <li v-for="singer in sliders" :key="singer.id" class="singer-item">
+                <div class="singer-avatar">
+                  <img :src="singer.avatar" :alt="singer.name">
+                </div>
+                <span class="singer-name">{{ singer.rank + 1}} {{ singer.name }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="singer-carousel-controls" v-if="singerSlides.length > 1">
+          <button class="singer-arrow" @click="prevSingerSlide">上</button>
+          <button class="singer-arrow" @click="nextSingerSlide">下</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -228,6 +295,96 @@ onMounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.singer-carousel {
+  margin-top: 12px;
+  position: relative;
+}
+
+.singer-carousel-track {
+  position: relative;
+  min-height: 200px;
+}
+
+.singer-slide {
+  width: 100%;
+}
+
+.singer-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+}
+
+.singer-avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.singer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.singer-avatar:hover img {
+  transform: scale(1.2);
+}
+
+.singer-name {
+  font-size: 16px;
+  color: #333;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.singer-carousel-controls {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+.singer-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-80%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid red;
+  background: #f2f2f2;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: auto;
+  transition: all 0.2s;
+}
+
+.singer-arrow:first-of-type {
+  left: -50px;
+}
+
+.singer-arrow:last-of-type {
+  right: -50px;
+}
+
+
+.singer-arrow:hover  {
+  background-color: red;
+  color: white;
 }
 
 </style>

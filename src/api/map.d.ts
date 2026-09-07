@@ -65,3 +65,17 @@ interface SongArtist {
     musicSize: number;
     topicPerson: number;
 }
+
+interface Artist {
+    id: number;
+    name: string;
+    rank: number;
+    avatar: string;
+}
+
+interface ArtistItem {
+    name: string;
+    id: number;
+    picUrl: string;
+    fansCount: number;
+}

@@ -6,6 +6,8 @@ interface Post {
 	body: string;
 }
 
+// MusicHall 接口
+
 interface PersonalizedRes {
 	hasTest: boolean;
 	code: number;
@@ -24,4 +26,12 @@ interface TopArtistsRes {
 	hasTest: boolean;
 	code: number;
 	artists: ArtistItem[];
+}
+
+// MusicList 接口
+
+interface PlaylistDetailRes {
+	hasTest: boolean;
+	code: number;
+	playlist: PlaylistDetailItem;
 }

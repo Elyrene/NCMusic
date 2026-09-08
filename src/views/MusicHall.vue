@@ -1,7 +1,11 @@
 <script setup lang="ts">
 
+import { ChevronRight, ChevronLeft } from '@lucide/vue';
 import { computed, onMounted, ref } from 'vue';
 import { api } from '@/api';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const playlists = ref<playList[]>([]);
 
@@ -15,7 +19,7 @@ const SINGER_PAGE_SIZE = 5;
 
 const singerSlides = computed(() => {
   const list = singerRank.value || [];
-  const sliders = [];
+  const sliders: Artist[][] = [];
   for (let i = 0; i < list.length; i += SINGER_PAGE_SIZE) {
     sliders.push(list.slice(i, i + SINGER_PAGE_SIZE));
   }
@@ -34,7 +38,7 @@ const nextSingerSlide = () => {
 
 const fetchPlaylist = async () => {
   try {
-    const data = await api.get<PersonalizedRes>('/personalized', { limit:5 });
+    const data = await api.get<PersonalizedRes>('/personalized', { limit: 5 });
 
     playlists.value = (data.result || []).map((item) => ({
       id: item.id,
@@ -71,7 +75,7 @@ const fetchSingerRank = async () => {
     singerRank.value = (data.artists || []).map((item, index) => ({
       id: item.id,
       name: item.name,
-      rank: index++,
+      rank: index,
       avatar: item.picUrl,
     }));
     console.log(singerRank.value);
@@ -80,10 +84,19 @@ const fetchSingerRank = async () => {
   }
 }
 
+const handlePlayPlaylistClick = (id: number) => {
+  if (!id) return;
+  router.push({
+    name: "musiclist",
+    query: {id},
+  });
+}
+
 onMounted(() => {
-  fetchPlaylist();
-  fetchNewSongs();
-  fetchSingerRank();
+  // fetchPlaylist();
+  // fetchNewSongs();
+  // fetchSingerRank();
+  void Promise.allSettled([fetchPlaylist(), fetchNewSongs(), fetchSingerRank()]);
 })
 
 </script>
@@ -97,6 +110,7 @@ onMounted(() => {
         v-for="item in playlists"
         :key="item.id"
         class="playlist-item"
+        @click="handlePlayPlaylistClick(item.id)"
         >
           <div class="cover-wrapper">
             <img :src="item.cover" :alt="item.title">
@@ -144,8 +158,8 @@ onMounted(() => {
         </div>
 
         <div class="singer-carousel-controls" v-if="singerSlides.length > 1">
-          <button class="singer-arrow" @click="prevSingerSlide">上</button>
-          <button class="singer-arrow" @click="nextSingerSlide">下</button>
+          <button class="singer-arrow" @click="prevSingerSlide"><ChevronLeft :stroke-width="3" /></button>
+          <button class="singer-arrow" @click="nextSingerSlide"><ChevronRight :stroke-width="3" /></button>
         </div>
       </div>
     </div>
@@ -364,7 +378,7 @@ onMounted(() => {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 1px solid red;
+  border: none;
   background: #f2f2f2;
   cursor: pointer;
   font-size: 16px;
@@ -383,7 +397,7 @@ onMounted(() => {
 
 
 .singer-arrow:hover  {
-  background-color: red;
+  background-color: rgb(128, 120, 120);
   color: white;
 }
 

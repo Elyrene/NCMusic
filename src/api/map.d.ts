@@ -5,6 +5,8 @@ interface playList {
     cover: string;
 }
 
+// MusicHall 接口
+
 interface PlaylistItem {
     id: number;
     type: number;
@@ -78,4 +80,43 @@ interface ArtistItem {
     id: number;
     picUrl: string;
     fansCount: number;
+}
+
+// MusicList 接口
+
+interface Track {
+    id: number;
+    name: string;
+    artist: string;
+    durationMs: number | 0;
+    album: string | '';
+}
+
+interface PlaylistDetailItem {
+    id: number;
+    name: string;
+    coverImgUrl: string;
+    tracks: TrakItem[];
+}
+
+interface TrakItem {
+    id: number;
+    name: string;
+    ar: ArItem[] | [];
+    artist: ArItem[] | [];
+    dt: number | 0;
+    duration: number | 0;
+    al: AlItem;
+    album: AlItem;
+}
+
+interface AlItem {
+    id: number;
+    name: string;
+    picUrl: string;
+}
+
+interface ArItem {
+    id: number;
+    name: string;
 }

@@ -6,7 +6,8 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		// "includes": ["**","!./**/*.vue"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -14,12 +15,11 @@
 	},
 	"linter": {
 		"enabled": true,
-		"rules": {
-			"recommended": true,
-			"suspicious": {
-				"noExplicitAny": "warn"
-			}
-		}
+    	"rules": {
+      		"correctness": {
+        		"noUnusedImports": "off"
+      		}
+    	}
 	},
 	"javascript": {
 		"formatter": {

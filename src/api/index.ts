@@ -18,6 +18,18 @@ api.setResponseInterceptor((response) => {
   return response;
 });
 
+// interface RM {
+//   '/posts/1': Post,
+//   '/posts': Post[],
+// }
+
+// function req<K extends keyof RM>(url: K): Promise<RM[K]> {}
+
+// let a = {a:1};
+// a['a']
+
+// req('/posts/1')
+
 // // GET 请求（带响应类型）
 // api.get<Post>('/posts/1')
 //   .then((data) => console.log('GET /posts/1:', data))

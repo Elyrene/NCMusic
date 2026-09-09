@@ -4,6 +4,7 @@ import { ChevronRight, ChevronLeft } from '@lucide/vue';
 import { computed, onMounted, ref } from 'vue';
 import { api } from '@/api';
 import { useRouter } from 'vue-router';
+import { idText } from 'typescript';
 
 const router = useRouter();
 
@@ -84,10 +85,18 @@ const fetchSingerRank = async () => {
   }
 }
 
-const handlePlayPlaylistClick = (id: number) => {
+const handlePlaylistClick = (id: number) => {
   if (!id) return;
   router.push({
     name: "musiclist",
+    query: {id},
+  });
+}
+
+const handleNewsongClick = (id: number) => {
+  if (!id) return;
+  router.push({
+    name: "player",
     query: {id},
   });
 }
@@ -110,7 +119,7 @@ onMounted(() => {
         v-for="item in playlists"
         :key="item.id"
         class="playlist-item"
-        @click="handlePlayPlaylistClick(item.id)"
+        @click="handlePlaylistClick(item.id)"
         >
           <div class="cover-wrapper">
             <img :src="item.cover" :alt="item.title">
@@ -127,6 +136,7 @@ onMounted(() => {
           class="song-item"
           v-for="song in newSongs"
           :key="song.id"
+          @click="handleNewsongClick(song.id)"
         >
           <div class="song-cover">
             <img :src="song.cover" :alt="song.name">

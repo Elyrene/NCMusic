@@ -152,10 +152,32 @@ export class HttpClient {
     }
 
     setRequestInterceptor(interceptor: Interceptors['request']): void {
-        this.interceptors.request  = interceptor;
+        this.interceptors.request = interceptor;
     }
 
     setResponseInterceptor(interceptor: Interceptors['response']): void {
         this.interceptors.response = interceptor;
     }
+}
+
+export function createApi(): HttpClient {
+    const api = new HttpClient({
+        baseURL: 'http://localhost:3000',
+        //   headers: {
+        //     Authorization: 'Bearer your_token_here',
+        //   },
+        timeout: 5000,
+    });
+
+    api.setRequestInterceptor((config) => {
+        // console.log('Request Interceptor:', config);
+        return config;
+    });
+
+    api.setResponseInterceptor((response) => {
+        // console.log('Response Interceptor:', response);
+        return response;
+    });
+
+    return api;
 }

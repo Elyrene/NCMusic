@@ -46,7 +46,7 @@ const fetchPlaylist = async () => {
       desc: item.copyright,
       cover: item.picUrl,
     }));
-    console.log(playlists.value);
+    // console.log(playlists.value);
   } catch(err) {
     console.log("推荐歌单获取失败", err);
   }
@@ -62,7 +62,7 @@ const fetchNewSongs = async () => {
       cover: item.picUrl,
       artist: item.song?.artists?.map((a) => a.name).join('/') || '',
     }));
-    console.log(newSongs.value);
+    // console.log(newSongs.value);
   } catch(err) {
     console.log("推荐新音乐失败", err);
   }
@@ -78,7 +78,7 @@ const fetchSingerRank = async () => {
       rank: index,
       avatar: item.picUrl,
     }));
-    console.log(singerRank.value);
+    // console.log(singerRank.value);
   } catch (err) {
     console.log("获取歌手榜单失败", err);
   }

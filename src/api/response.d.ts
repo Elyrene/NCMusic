@@ -35,3 +35,18 @@ interface PlaylistDetailRes {
 	code: number;
 	playlist: PlaylistDetailItem;
 }
+
+// Player 接口
+
+interface SongDetailRes {
+	hasTest: boolean;
+	code: number;
+	songs: SongsItem[];
+}
+
+interface LyicRes {
+	lrc: {
+		version: number;
+		lyric: string;
+	}
+}

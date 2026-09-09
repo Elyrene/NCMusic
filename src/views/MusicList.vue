@@ -2,9 +2,10 @@
 
 import { api } from '@/api';
 import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute();
+const router = useRouter();
 
 const playlistId = computed(() => Number(route.query.id) || 0);
 
@@ -45,6 +46,14 @@ const fomateDuration = (ms: number) => {
     return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 }
 
+const handerlaySongClick = (id: number) => {
+    if (!id) return;
+    router.push({
+        name: "player",
+        query: {id},
+    });
+}
+
 onMounted(() => {
     void Promise.allSettled([fetchPlaylistDetail()]);
 });
@@ -62,6 +71,7 @@ onMounted(() => {
                 class="track-item"
                 v-for="(track, index) in tracks"
                 :key="track.id"
+                @click="handerlaySongClick(track.id)"
                 >
                     <span class="track-index">{{ index + 1 }}</span>
                     <div class="track-main">

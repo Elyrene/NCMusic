@@ -120,3 +120,20 @@ interface ArItem {
     id: number;
     name: string;
 }
+
+// Player 接口
+
+interface Song {
+    name: string;
+    artist: string;
+    album: string;
+    cover: string;
+}
+
+interface SongsItem {
+    name: string;
+    ar: ArItem[] | [];
+    artist: ArItem[] | [];
+    al: AlItem;
+    album: AlItem;
+}

@@ -4,7 +4,6 @@ import { ChevronRight, ChevronLeft } from '@lucide/vue';
 import { computed, onMounted, ref } from 'vue';
 import { api } from '@/api';
 import { useRouter } from 'vue-router';
-import { idText } from 'typescript';
 
 const router = useRouter();
 

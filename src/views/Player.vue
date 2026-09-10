@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import { Pause, Play } from '@lucide/vue';
 import { api } from '@/api';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -7,14 +8,21 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 const songId = computed(() => Number(route.query.id) || 0);
 
+const audioRef = ref<HTMLAudioElement | null>(null);
+
 const lyrics = ref<string[]>([]);
 
 const songInfo = ref<Song>({
     name: '未知歌曲',
     artist: '未知歌手',
     album: '未知专辑',
-    cover: 'https://via.placeholder.com/260x260.png?text=Cover',
+    cover: '',
 })
+
+const audioUrl = ref<string>('');
+const currentTime = ref<number>(0);
+const duration = ref<number>(0);
+const isPlay = ref<boolean>(false);
 
 const fetchSongDetail = async () => {
     const ids: number = songId.value;
@@ -27,7 +35,7 @@ const fetchSongDetail = async () => {
             name: detail.name ?? '未知歌曲',
             artist: detail.ar?.[0]?.name ?? detail.artist?.[0]?.name ?? '未知歌手',
             album: detail.al?.name ?? detail.album?.name ?? '未知专辑',
-            cover: detail.al?.picUrl ?? detail.album?.picUrl ?? 'https://via.placeholder.com/260x260.png?text=Cover' ,
+            cover: detail.al?.picUrl ?? detail.album?.picUrl ?? '' ,
         }
         // console.log(songInfo.value);
     } catch(err) {
@@ -41,13 +49,37 @@ const fetchLyric = async () => {
     try {
         const data = await api.get<LyicRes>("/lyric", { id: id });
         // console.log(data.lrc.lyric);
-        parseLyric(data.lrc?.lyric || '');
-        lyrics.value = parseLyric(data.lrc.lyric);
-        console.log(lyrics.value);
+        lyrics.value = parseLyric(data.lrc.lyric || '');
+        // console.log(lyrics.value);
     } catch (err) {
         console.log("获取歌词失败", err);
         lyrics.value = [];
     }
+}
+
+const fetchSongUrl = async () => {
+    const id: number = songId.value;
+    if (!id) return;
+    try {
+        const data = await api.get<SongUrlRes>("/song/url", { id: id });
+        audioUrl.value = data.data[0]?.url || '';
+        console.log(audioUrl.value);
+        duration.value = 0;
+        currentTime.value = 0;
+        isPlay.value = false;
+        
+    } catch(err) {
+        console.log("获取音乐播放地址失败", err);
+        audioUrl.value = '';
+        isPlay.value = false;
+    }
+}
+
+const handleLoadedMetadata = () => {
+    const audio = audioRef.value;
+    if (!audio) return;
+    duration.value = audio.duration || 0;
+    currentTime.value = audio.currentTime || 0;
 }
 
 const parseLyric = (lyric: string = '') => {
@@ -60,8 +92,55 @@ const parseLyric = (lyric: string = '') => {
         });
 }
 
+const formateTime = (sec: number) => {
+    if (!sec || !Number.isFinite(sec)) return '00:00';
+    const s = Math.floor(sec);
+    const m = Math.floor(s / 60);
+    const rs = s % 60;
+    const mm = m.toString().padStart(2, '0');
+    const ss = rs.toString().padStart(2, '0');
+    return `${mm}:${ss}`;
+}
+
+const handleTogglePlay = () => {
+    const audio = audioRef.value;
+    if (!audio) return;
+    if (audio.paused) {
+        audio.play().then(() => {
+            isPlay.value = true;
+        }).catch(() => {});
+    } else {
+        audio.pause();
+        isPlay.value = false;
+    }
+}
+
+const handleAudioEnded = () => {
+    isPlay.value = false;
+}
+
+const handleTimeUpdate = () => {
+    const audio = audioRef.value;
+    if(!audio) return;
+    currentTime.value = audio.currentTime || 0;
+}
+
+const handleProgressClick = (event: MouseEvent) => {
+    const bar = event.currentTarget as HTMLElement;
+    const audio = audioRef.value;
+    if(!audio || !bar) return;
+
+    const rect = bar.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+
+    const newTime = duration.value * ratio;
+    audio.currentTime = newTime;
+    currentTime.value = newTime;
+}
+
 onMounted(() => {
-    void Promise.allSettled([fetchSongDetail(), fetchLyric()]);
+    void Promise.allSettled([fetchSongDetail(), fetchLyric(), fetchSongUrl()]);
 });
 
 </script>
@@ -102,7 +181,31 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-                <!-- 进度条 -->
+            </div>
+            <!-- 进度条 -->
+            <div class="player-controls">
+                <div class="controls-main">
+                    <button class="btn-circle btn-large" @click="handleTogglePlay">
+                        <Pause v-if="isPlay"/>
+                        <Play v-else/>
+                    </button>
+                </div>
+                <div class="progress-wrap">
+                    <span class="time-label">{{ formateTime(currentTime) }}</span>
+                    <div class="progress-bar" @click="handleProgressClick">
+                        <div class="progress-inner" :style="{ width: duration ? `${(currentTime / duration) * 100}%`: '0%' }"></div>
+                    </div>
+                    <span class="time-label">{{ formateTime(duration) }}</span>
+                </div>
+                <audio 
+                v-if="audioUrl"
+                class="audio-hidden"
+                ref="audioRef"
+                :src="audioUrl"
+                @loadedmetadata="handleLoadedMetadata"
+                @timeupdate="handleTimeUpdate"
+                @ended="handleAudioEnded"
+                ></audio>
             </div>
         </div>
     </div>
@@ -146,6 +249,10 @@ onMounted(() => {
     height: 260px;
     border-radius: 50%;
     background: radial-gradient(circle, #444, #111);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 40px rgba(255, 255, 255, 0.7);
 }
 
 .cover-disc {
@@ -206,7 +313,7 @@ onMounted(() => {
 }
 
 .lyrics-content {
-    max-height: 640px;
+    max-height: 460px;
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 0;
@@ -234,6 +341,121 @@ onMounted(() => {
     font-size: 18px;
     font-weight: 600;
     transform: scale(1.02);
+}
+
+.player-controls {
+    width: 100%;
+    padding: 16px 24px 0 ;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.audio-hidden {
+    display: none;
+}
+
+.controls-main {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.btn-circle {
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 04);
+}
+
+.btn-large {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+}
+
+.btn-small {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+}
+
+.btn-circle:hover {
+    transform: translateY(-1px);
+}
+
+.progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.time-label {
+    font-size: 12px;
+    color: #c0c0c0;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.progress-bar:hover {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.progress-inner {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ff4b2b, #ff416c);
+}
+
+.controls-extra {
+    display: none;
+}
+
+.extra-left,
+.extra-right {
+    display: none;
+}
+
+.btn-text {
+    display: none;
+}
+
+.btn-text:hover {
+    color: #fff;
+}
+
+@media (max-width: 960px) {
+    .player-inner {
+        flex-direction: column;
+    }
+
+    .player-main {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .player-left {
+        width: auto;
+    }
 }
 
 </style>

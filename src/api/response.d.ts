@@ -50,3 +50,11 @@ interface LyicRes {
 		lyric: string;
 	}
 }
+
+interface SongUrlRes {
+	code: number;
+	data: {
+		id: number;
+		url: string;
+	}[];
+}

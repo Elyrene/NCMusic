@@ -2,7 +2,7 @@
 
 import { Pause, Play } from '@lucide/vue';
 import { api } from '@/api';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -122,7 +122,14 @@ const activeIndex = computed(() => {
         }
     }
     return index;
-});
+})
+
+const seekTo = (time: number) => {
+    const audio = audioRef.value;
+    if(!audio) return;
+    audio.currentTime = time;
+    currentTime.value = time;
+}
 
 const handleTogglePlay = () => {
     const audio = audioRef.value;
@@ -191,6 +198,7 @@ onMounted(() => {
                         <div class="lyrics-content">
                             <template v-if="lyricLines.length">
                                 <p 
+                                @click="seekTo(line.time)"
                                 v-for="(line, index) in lyricLines"
                                 :key="index"
                                 :class="{ 'lyrics-line--heightlight' : index == activeIndex}"
@@ -356,6 +364,8 @@ onMounted(() => {
     color: rgba(255, 255, 255, 0.65);
     transition: color 0.2 ease, transform 0.2s ease;
     white-space: normal;
+    transition: all 0.4s ease;
+    cursor: pointer;
 }
 
 .lyrics-line--heightlight {
@@ -394,6 +404,7 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 04);
+    transition: all 0.3s ease;
 }
 
 .btn-large {
@@ -409,7 +420,9 @@ onMounted(() => {
 }
 
 .btn-circle:hover {
-    transform: translateY(-1px);
+    background: #ff416c;
+    color: #fff;
+    transform: translateY(-2px);
 }
 
 .progress-wrap {

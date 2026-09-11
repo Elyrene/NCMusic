@@ -11,6 +11,8 @@ const songId = computed(() => Number(route.query.id) || 0);
 const audioRef = ref<HTMLAudioElement | null>(null);
 
 const lyricLines = ref<LyricLine[]>([]);
+const lyricsContentRef = ref<HTMLElement | null>(null);
+const lyricElRefs = ref<HTMLElement[]>([]);
 
 const songInfo = ref<Song>({
     name: '未知歌曲',
@@ -124,6 +126,23 @@ const activeIndex = computed(() => {
     return index;
 })
 
+watch(activeIndex, (index) => {
+    if (index < 0) return;
+    const container = lyricsContentRef.value;
+    const el = lyricElRefs.value[index];
+    if (!container || !el) return;
+
+    //  需要在 lyrics-content 类中加入 position: relative;
+    container.scrollTo({
+        top: el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2,
+        behavior: 'smooth',
+    });
+});
+
+const setLyricRef = (el: unknown, index: number) => {
+    if (el) lyricElRefs.value[index] = el as HTMLElement;
+};
+
 const seekTo = (time: number) => {
     const audio = audioRef.value;
     if(!audio) return;
@@ -195,12 +214,13 @@ onMounted(() => {
                 <div class="player-right">
                     <div class="lyrics-card">
                         <h3 class="lyrics-title">歌词</h3>
-                        <div class="lyrics-content">
+                        <div class="lyrics-content" ref="lyricsContentRef">
                             <template v-if="lyricLines.length">
                                 <p 
                                 @click="seekTo(line.time)"
                                 v-for="(line, index) in lyricLines"
                                 :key="index"
+                                :ref="(el) => setLyricRef(el, index)"
                                 :class="{ 'lyrics-line--heightlight' : index == activeIndex}"
                                 class="lyrics-line"
                                 >
@@ -349,6 +369,7 @@ onMounted(() => {
     padding-right: 0;
     scrollbar-width: none;
     scrollbar-color: transparent transparent;
+    position: relative;
 }
 
 .lyrics-content::-webkit-scrollbar {

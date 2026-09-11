@@ -137,3 +137,8 @@ interface SongsItem {
     al: AlItem;
     album: AlItem;
 }
+
+interface LyricLine {
+    time: number;
+    text: string;
+}

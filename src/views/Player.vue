@@ -10,7 +10,7 @@ const songId = computed(() => Number(route.query.id) || 0);
 
 const audioRef = ref<HTMLAudioElement | null>(null);
 
-const lyrics = ref<string[]>([]);
+const lyricLines = ref<LyricLine[]>([]);
 
 const songInfo = ref<Song>({
     name: '未知歌曲',
@@ -49,11 +49,11 @@ const fetchLyric = async () => {
     try {
         const data = await api.get<LyicRes>("/lyric", { id: id });
         // console.log(data.lrc.lyric);
-        lyrics.value = parseLyric(data.lrc.lyric || '');
+        lyricLines.value = parseLyric(data.lrc.lyric || '');
         // console.log(lyrics.value);
     } catch (err) {
         console.log("获取歌词失败", err);
-        lyrics.value = [];
+        lyricLines.value = [];
     }
 }
 
@@ -82,14 +82,18 @@ const handleLoadedMetadata = () => {
     currentTime.value = audio.currentTime || 0;
 }
 
-const parseLyric = (lyric: string = '') => {
+const parseLyric = (lyric: string = ''): LyricLine[] => {
     return lyric.split('\n')
         .map((line) => line.trim())
         .filter((line) => line)
-        .map((line) => {
-            const lyricText = line.replace(/^\[[^\]]*]/g, '').trim();
-            return lyricText || line;
-        });
+        .flatMap((line) => {
+            const times = [...line.matchAll(/\[(\d{1,2}):(\d{1,2}(?:\.\d{1,3})?)\]/g)]
+                .map((m) => Number(m[1]) * 60 + Number(m[2]));
+            const text = line.replace(/\[[^\]]*]/g, '').trim();
+            if(!times.length || !text.length) return[];
+            return times.map((time) => ({ time, text }));
+        })
+        .sort((a, b) => a.time - b.time);
 }
 
 const formateTime = (sec: number) => {
@@ -167,14 +171,14 @@ onMounted(() => {
                     <div class="lyrics-card">
                         <h3 class="lyrics-title">歌词</h3>
                         <div class="lyrics-content">
-                            <template v-if="lyrics.length">
+                            <template v-if="lyricLines.length">
                                 <p 
-                                v-for="(line, index) in lyrics"
+                                v-for="(line, index) in lyricLines"
                                 :key="index"
                                 :class="{ 'lyrics-line--heightlight' : index == 0}"
                                 class="lyrics-line"
                                 >
-                                    {{ line }}
+                                    {{ line.text }}
                                 </p>
                             </template>
                             <p v-else class="lyrics-line">暂无歌词</p>

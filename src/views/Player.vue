@@ -48,7 +48,7 @@ const fetchLyric = async () => {
     if (!id) return;
     try {
         const data = await api.get<LyicRes>("/lyric", { id: id });
-        // console.log(data.lrc.lyric);
+        console.log(data.lrc.lyric);
         lyricLines.value = parseLyric(data.lrc.lyric || '');
         // console.log(lyrics.value);
     } catch (err) {
@@ -105,6 +105,24 @@ const formateTime = (sec: number) => {
     const ss = rs.toString().padStart(2, '0');
     return `${mm}:${ss}`;
 }
+
+const activeIndex = computed(() => {
+    const audio = audioRef.value;
+
+    if(!audio || currentTime.value <= 0) return -1;
+    const time = currentTime.value;
+    let index = -1;
+    for(let i = 0; i < lyricLines.value.length; i++ ) {
+        const line = lyricLines.value[i];
+        if(!line) break;
+        if(line.time <= time) {
+            index = i;
+        } else {
+            break;
+        }
+    }
+    return index;
+});
 
 const handleTogglePlay = () => {
     const audio = audioRef.value;
@@ -175,7 +193,7 @@ onMounted(() => {
                                 <p 
                                 v-for="(line, index) in lyricLines"
                                 :key="index"
-                                :class="{ 'lyrics-line--heightlight' : index == 0}"
+                                :class="{ 'lyrics-line--heightlight' : index == activeIndex}"
                                 class="lyrics-line"
                                 >
                                     {{ line.text }}

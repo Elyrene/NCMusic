@@ -26,6 +26,9 @@ const currentTime = ref<number>(0);
 const duration = ref<number>(0);
 const isPlay = ref<boolean>(false);
 
+let userScorlling = false;
+let userScorllTimeer: ReturnType<typeof setTimeout>
+
 const fetchSongDetail = async () => {
     const ids: number = songId.value;
     if (!ids) return;
@@ -126,8 +129,16 @@ const activeIndex = computed(() => {
     return index;
 })
 
+const handleLyricScroll = () => {
+    userScorlling = true;
+    clearTimeout(userScorllTimeer);
+    userScorllTimeer = setTimeout(() => {
+        userScorlling = false;
+    }, 2000);
+}
+
 watch(activeIndex, (index) => {
-    if (index < 0) return;
+    if (index < 0 || userScorlling) return;
     const container = lyricsContentRef.value;
     const el = lyricElRefs.value[index];
     if (!container || !el) return;
@@ -214,7 +225,7 @@ onMounted(() => {
                 <div class="player-right">
                     <div class="lyrics-card">
                         <h3 class="lyrics-title">歌词</h3>
-                        <div class="lyrics-content" ref="lyricsContentRef">
+                        <div class="lyrics-content" ref="lyricsContentRef" @scroll="handleLyricScroll">
                             <template v-if="lyricLines.length">
                                 <p 
                                 @click="seekTo(line.time)"

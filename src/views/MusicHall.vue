@@ -17,6 +17,10 @@ const currentSingerSlide = ref<number>(0);
 
 const SINGER_PAGE_SIZE = 5;
 
+const playListLoading = ref(false);
+const newSongsLoading = ref(false);
+const singerRankLoading = ref(false);
+
 const singerSlides = computed(() => {
   const list = singerRank.value || [];
   const sliders: Artist[][] = [];
@@ -37,50 +41,59 @@ const nextSingerSlide = () => {
 }
 
 const fetchPlaylist = async () => {
+  playListLoading.value = true;
   try {
     const data = await api.get<PersonalizedRes>('/personalized', { limit: 5 });
-
+    
     playlists.value = (data.result || []).map((item) => ({
       id: item.id,
       title: item.name,
       desc: item.copyright,
       cover: item.picUrl,
     }));
+    playListLoading.value = false;
     // console.log(playlists.value);
   } catch(err) {
     console.log("推荐歌单获取失败", err);
+    playListLoading.value = false;
   }
 }
 
 const fetchNewSongs = async () => {
+  newSongsLoading.value = true;
   try {
     const data = await api.get<PersonalizedNewSongRes>('/personalized/newsong');
-
+    
     newSongs.value = (data.result || []).map((item) => ({
       id: item.id,
       name: item.name,
       cover: item.picUrl,
       artist: item.song?.artists?.map((a) => a.name).join('/') || '',
     }));
+    newSongsLoading.value = false;
     // console.log(newSongs.value);
   } catch(err) {
     console.log("推荐新音乐失败", err);
+    newSongsLoading.value = false;
   }
 }
 
 const fetchSingerRank = async () => {
+  singerRankLoading.value = true;
   try {
     const data = await api.get<TopArtistsRes>('/top/artists', { limit: 20 });
-    
+
     singerRank.value = (data.artists || []).map((item, index) => ({
       id: item.id,
       name: item.name,
       rank: index,
       avatar: item.picUrl,
     }));
+    singerRankLoading.value =false;
     // console.log(singerRank.value);
   } catch (err) {
     console.log("获取歌手榜单失败", err);
+    singerRankLoading.value = false;
   }
 }
 
@@ -113,7 +126,9 @@ onMounted(() => {
   <div class="hall-wrapper">
     <div class="hall-inner">
       <h2 class="section-title">推荐歌单</h2>
-      <ul class="playlist-list">
+      <div class="tip" v-if="playListLoading">数据加载中...</div>
+      <div v-else-if="!playlists.length">数据获取失败</div>
+      <ul class="playlist-list" v-else>
         <li 
         v-for="item in playlists"
         :key="item.id"
@@ -130,7 +145,9 @@ onMounted(() => {
         </li>
       </ul>
       <h2 class="section-title section-title--sub">推荐新音乐</h2>
-      <ul class="song-list">
+      <div class="tip" v-if="newSongsLoading">数据加载中...</div>
+      <div v-else-if="!newSongs.length">数据获取失败</div>
+      <ul class="song-list" v-else>
         <li 
           class="song-item"
           v-for="song in newSongs"
@@ -147,30 +164,34 @@ onMounted(() => {
         </li>
       </ul>
       <h2 class="section-title section-title--sub section-title--singer">歌手榜单</h2>
-      <div class="singer-carousel" v-if="singerSlides.length">
-        <div class="singer-carousel-track">
-          <div 
-            v-for="(sliders, index) in singerSlides"
-            :key="index"
-            class="singer-slide"
-            v-show="index == currentSingerSlide"
-            >
-            <ul class="singer-list">
-              <li v-for="singer in sliders" :key="singer.id" class="singer-item">
-                <div class="singer-avatar">
-                  <img :src="singer.avatar" :alt="singer.name">
-                </div>
-                <span class="singer-name">{{ singer.rank + 1}} {{ singer.name }}</span>
-              </li>
-            </ul>
+      <div class="tip" v-if="singerRankLoading">数据加载中...</div>
+      <div v-else-if="!singerRank.length">数据获取失败</div>
+      <template v-else>
+        <div class="singer-carousel" v-if="singerSlides.length">
+          <div class="singer-carousel-track">
+            <div 
+              v-for="(sliders, index) in singerSlides"
+              :key="index"
+              class="singer-slide"
+              v-show="index == currentSingerSlide"
+              >
+              <ul class="singer-list">
+                <li v-for="singer in sliders" :key="singer.id" class="singer-item">
+                  <div class="singer-avatar">
+                    <img :src="singer.avatar" :alt="singer.name">
+                  </div>
+                  <span class="singer-name">{{ singer.rank + 1}} {{ singer.name }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="singer-carousel-controls" v-if="singerSlides.length > 1">
+            <button class="singer-arrow" @click="prevSingerSlide"><ChevronLeft :stroke-width="3" /></button>
+            <button class="singer-arrow" @click="nextSingerSlide"><ChevronRight :stroke-width="3" /></button>
           </div>
         </div>
-
-        <div class="singer-carousel-controls" v-if="singerSlides.length > 1">
-          <button class="singer-arrow" @click="prevSingerSlide"><ChevronLeft :stroke-width="3" /></button>
-          <button class="singer-arrow" @click="nextSingerSlide"><ChevronRight :stroke-width="3" /></button>
-        </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -408,6 +429,12 @@ onMounted(() => {
 .singer-arrow:hover  {
   background-color: rgb(128, 120, 120);
   color: white;
+}
+
+.tip {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #777;
 }
 
 </style>

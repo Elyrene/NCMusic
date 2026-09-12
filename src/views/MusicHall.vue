@@ -17,9 +17,9 @@ const currentSingerSlide = ref<number>(0);
 
 const SINGER_PAGE_SIZE = 5;
 
-const playListLoading = ref(false);
-const newSongsLoading = ref(false);
-const singerRankLoading = ref(false);
+const playListLoading = ref<boolean>(false);
+const newSongsLoading = ref<boolean>(false);
+const singerRankLoading = ref<boolean>(false);
 
 const singerSlides = computed(() => {
   const list = singerRank.value || [];

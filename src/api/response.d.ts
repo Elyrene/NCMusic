@@ -74,3 +74,17 @@ interface LoginQrCreateRes {
 		qrurl: string | '';
 	};
 }
+
+interface LoginQrCheckRes {
+	code: number;
+}
+
+interface LoginStatusRes {
+	data: {
+		profile: {
+			userId: number;
+			nickname: string;
+			avatarUrl: string;
+		};
+	};
+}

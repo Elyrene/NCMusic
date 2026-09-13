@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { api } from '@/api';
-import { onMounted, ref, watch } from 'vue';
+import { useUserStore } from '@/stores/user';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
 const loginKey = ref<string>('');
 const qrImg = ref<string>('');
+
+const qrCheckTimer = ref<number | null>(null);
+
+const userStore = useUserStore();
 
 const fetchloginKey = async () => {
     try {
@@ -44,6 +49,54 @@ watch(() => loginKey.value, (val: string) => {
     }
 })
 
+// 轮询监听是否扫描二维码
+
+const startQrCheak = (key: string) => {
+    if (!key) return;
+    if (qrCheckTimer.value) {
+        clearInterval(qrCheckTimer.value);
+    }
+    qrCheckTimer.value = setInterval(async () => {
+        try {
+            const data = await api.get<LoginQrCheckRes>("/login/qr/check", {
+                key,
+                timeStamp: Date.now(),
+                ua: "pc",
+            })
+            if (data.code === 803) {
+                if (qrCheckTimer.value) clearInterval(qrCheckTimer.value);
+                qrCheckTimer.value = null;
+                try {
+                    const statusRes = await api.get<LoginStatusRes>("/login/status", {
+                        timeStamp: Date.now(),
+                        ua: "pc",
+                    })
+                    console.log(statusRes);
+                    const profile = statusRes.data?.profile;
+                    console.log(profile);
+                    if (profile) {
+                        userStore.setUser({
+                            id: profile.userId,
+                            avatar: profile.avatarUrl,
+                            nickname: profile.nickname,
+                        })
+                    }
+                } catch (err) {
+                    console.log("获取登录状态失败", err);
+                }
+            }
+        } catch (err) {
+            console.log("检查二维码登录状态失败", err);
+        }
+    }, 3000)
+}
+
+watch(() => qrImg.value, (val: string) => {
+    if (val && loginKey.value) {
+        startQrCheak(loginKey.value);
+    } 
+})
+
 const handleOverlayClick = (event: MouseEvent) => {
     if (event.target === event.currentTarget) {
         router.push('/')
@@ -52,6 +105,13 @@ const handleOverlayClick = (event: MouseEvent) => {
 
 onMounted(() => {
     fetchloginKey(); 
+})
+
+onBeforeUnmount(() => {
+    if (qrCheckTimer.value) {
+        clearInterval(qrCheckTimer.value);
+        qrCheckTimer.value = null;
+    }
 })
 
 </script>

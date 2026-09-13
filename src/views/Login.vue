@@ -1,16 +1,58 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { api } from '@/api';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+const loginKey = ref<string>('');
 const qrImg = ref<string>('');
+
+const fetchloginKey = async () => {
+    try {
+        const data = await api.get<LoginQrKeyRes>("/login/qr/key");
+        loginKey.value = data.data?.unikey || '';
+        console.log(loginKey.value);
+    } catch(err) {
+        console.log("获取二维码 Key 失败", err);
+        loginKey.value = '';
+    }
+}
+
+const fetchQrImg = async (key: string) => {
+    if (!key) return;
+    try {
+        const data = await api.get<LoginQrCreateRes>("/login/qr/create",{
+            key,
+            timeStamp: Date.now(),
+            ua: "pc",
+            qrimg: true,
+        });
+        qrImg.value = data.data?.qrimg || '';
+        console.log(qrImg.value);
+    } catch(err) {
+        console.log("获取二维码图片失败", err);
+        qrImg.value = '';
+    }
+}
+
+// 监听获取到 key 就获取二维码
+
+watch(() => loginKey.value, (val: string) => {
+    if (val) {
+        fetchQrImg(val);
+    }
+})
 
 const handleOverlayClick = (event: MouseEvent) => {
     if (event.target === event.currentTarget) {
         router.push('/')
     }
 }
+
+onMounted(() => {
+    fetchloginKey(); 
+})
 
 </script>
 

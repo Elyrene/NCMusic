@@ -58,3 +58,19 @@ interface SongUrlRes {
 		url: string;
 	}[];
 }
+
+interface LoginQrKeyRes {
+	code: number;
+	data: {
+		code: number;
+		unikey: string;
+	};
+}
+
+interface LoginQrCreateRes {
+	code: number;
+	data: {
+		qrimg: string | '';
+		qrurl: string | '';
+	};
+}

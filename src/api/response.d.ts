@@ -77,6 +77,7 @@ interface LoginQrCreateRes {
 
 interface LoginQrCheckRes {
 	code: number;
+	cookie: string;
 }
 
 interface LoginStatusRes {

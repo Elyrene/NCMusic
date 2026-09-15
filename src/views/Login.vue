@@ -17,7 +17,7 @@ const fetchloginKey = async () => {
     try {
         const data = await api.get<LoginQrKeyRes>("/login/qr/key");
         loginKey.value = data.data?.unikey || '';
-        console.log(loginKey.value);
+        // console.log(loginKey.value);
     } catch(err) {
         console.log("获取二维码 Key 失败", err);
         loginKey.value = '';
@@ -34,7 +34,7 @@ const fetchQrImg = async (key: string) => {
             qrimg: true,
         });
         qrImg.value = data.data?.qrimg || '';
-        console.log(qrImg.value);
+        // console.log(qrImg.value);
     } catch(err) {
         console.log("获取二维码图片失败", err);
         qrImg.value = '';
@@ -63,13 +63,16 @@ const startQrCheak = (key: string) => {
                 timeStamp: Date.now(),
                 ua: "pc",
             })
+            console.log(data);
             if (data.code === 803) {
                 if (qrCheckTimer.value) clearInterval(qrCheckTimer.value);
                 qrCheckTimer.value = null;
+                userStore.setCookie(data.cookie);
                 try {
                     const statusRes = await api.get<LoginStatusRes>("/login/status", {
                         timeStamp: Date.now(),
                         ua: "pc",
+                        cookie: userStore.cookie,
                     })
                     console.log(statusRes);
                     const profile = statusRes.data?.profile;

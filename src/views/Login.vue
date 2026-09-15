@@ -63,7 +63,7 @@ const startQrCheak = (key: string) => {
                 timeStamp: Date.now(),
                 ua: "pc",
             })
-            console.log(data);
+            // console.log(data);
             if (data.code === 803) {
                 if (qrCheckTimer.value) clearInterval(qrCheckTimer.value);
                 qrCheckTimer.value = null;
@@ -74,9 +74,9 @@ const startQrCheak = (key: string) => {
                         ua: "pc",
                         cookie: userStore.cookie,
                     })
-                    console.log(statusRes);
+                    // console.log(statusRes);
                     const profile = statusRes.data?.profile;
-                    console.log(profile);
+                    // console.log(profile);
                     if (profile) {
                         userStore.setUser({
                             id: profile.userId,
@@ -84,9 +84,15 @@ const startQrCheak = (key: string) => {
                             nickname: profile.nickname,
                         })
                     }
+                    router.push('/');
                 } catch (err) {
                     console.log("获取登录状态失败", err);
                 }
+            } else if(data.code === 800) {
+                // console.log('二维码过期');
+                if (qrCheckTimer.value) clearInterval(qrCheckTimer.value);
+                qrCheckTimer.value = null;
+                fetchloginKey();
             }
         } catch (err) {
             console.log("检查二维码登录状态失败", err);

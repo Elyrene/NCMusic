@@ -53,7 +53,7 @@ const fetchLyric = async () => {
     if (!id) return;
     try {
         const data = await api.get<LyicRes>("/lyric", { id: id });
-        console.log(data.lrc.lyric);
+        // console.log(data.lrc.lyric);
         lyricLines.value = parseLyric(data.lrc.lyric || '');
         // console.log(lyrics.value);
     } catch (err) {
@@ -68,7 +68,7 @@ const fetchSongUrl = async () => {
     try {
         const data = await api.get<SongUrlRes>("/song/url", { id: id });
         audioUrl.value = data.data[0]?.url || '';
-        console.log(audioUrl.value);
+        // console.log(audioUrl.value);
         duration.value = 0;
         currentTime.value = 0;
         isPlay.value = false;

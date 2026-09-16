@@ -1,6 +1,29 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { RouterLink, RouterView } from 'vue-router'
+import { useUserStore } from './stores/user';
+import router from './router';
+import { api } from './api';
+
+const userStore = useUserStore();
+
+const handleAvatarClick = () => {
+
+}
+
+const handleLogOut = async () => {
+  try {
+    const data = await api.get("/logout" , {
+      withCredentials: true,
+      cookie: userStore.cookie,
+    });
+    console.log(data);
+    userStore.clearUser();
+    router.push("/");
+  } catch(err) {
+    console.log("退出登录失败", err);
+  }
+}
 
 const searchKeyword = ref('')
 const handleSearch = () => {
@@ -31,7 +54,18 @@ const handleSearch = () => {
             @keyup.enter="handleSearch"
             >
           </div>
-          <RouterLink to="/login" class="login-btn">登录</RouterLink>
+          <RouterLink to="/login" class="login-btn" v-if="!userStore.isLoggedIn">登录</RouterLink>
+          <div class="user-menu" v-else>
+            <button class="user-avatar" type="button" @click="handleAvatarClick">
+              <img :src="userStore.user?.avatar" alt="用户头像">
+            </button>
+            <div class="user-dropdown">
+              <div class="user-dropdown-header">
+                <span class="user-name">{{ userStore.user?.nickname || "我的账号"}}</span>
+              </div>
+              <button class="user-dropdown-item" type="button" @click="handleLogOut">退出登录</button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -40,7 +74,8 @@ const handleSearch = () => {
     </main>
   </div>
 </template>
-<style>
+
+<style scoped>
 
 .app{
   display: flex;
@@ -144,6 +179,81 @@ const handleSearch = () => {
 
 .main-view{
   flex: 1;
+}
+
+.user-menu {
+  margin-top: 10px;
+  margin-left: 24px;
+  position: relative;
+}
+
+.user-avatar {
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 36px;
+  right: 0;
+  min-width: 140px;
+  padding: 8px 0;
+  border-radius: 8px;
+  background: #2d2d2d;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.user-dropdown-header {
+  padding: 4px 14px 6px;
+  border-bottom: 1px solid rgba(255, 355, 255, 0.08);
+  margin-bottom: 4px;
+}
+
+.user-name {
+  font-size: 12px;
+  color: #f5f5f5;
+}
+
+.user-dropdown-item {
+  width: 100%;
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  color: #f5f7fb;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.user-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.user-menu:hover .user-dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 </style>

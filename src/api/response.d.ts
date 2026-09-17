@@ -89,3 +89,18 @@ interface LoginStatusRes {
 		};
 	};
 }
+
+interface LogoutRes {
+	code: number;
+}
+
+interface UserPlayListRes {
+	code: number;
+	playlist: {
+		id: number;
+		coverImgUrl: string;
+		userid: number;
+		name: string;
+		trackCount: number;
+	}[];
+}

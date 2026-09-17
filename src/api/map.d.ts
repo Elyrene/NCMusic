@@ -1,8 +1,9 @@
 interface playList {
     id: number;
     title: string;
-    desc: string;
+    desc?: string | '';
     cover: string;
+    trackCount?: number | 0;
 }
 
 // MusicHall 接口

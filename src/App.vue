@@ -13,13 +13,14 @@ const handleAvatarClick = () => {
 
 const handleLogOut = async () => {
   try {
-    const data = await api.get("/logout" , {
+      const data = await api.get<LogoutRes>("/logout" , {
       withCredentials: true,
       cookie: userStore.cookie,
     });
-    console.log(data);
-    userStore.clearUser();
-    router.push("/");
+    if (data.code === 200) {
+      userStore.clearUser();
+      router.push("/");
+    }
   } catch(err) {
     console.log("退出登录失败", err);
   }
@@ -110,6 +111,7 @@ const handleSearch = () => {
   width: 176px;
   height: 69px;
   background-position: 0 0;
+  border: none;
 }
 
 .logo a{

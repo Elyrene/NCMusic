@@ -126,6 +126,12 @@ onMounted(() => {
     color: #fff;
     font-size: 14px;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hint-btn:hover {
+    background-color: antiquewhite;
+    color: #c20c0c;
 }
 
 .subtitle{

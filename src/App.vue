@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useUserStore } from './stores/user';
-import router from './router';
 import { api } from './api';
 
 const userStore = useUserStore();
+
+const router = useRouter();
 
 const handleAvatarClick = () => {
 
@@ -29,7 +30,10 @@ const handleLogOut = async () => {
 const searchKeyword = ref('')
 const handleSearch = () => {
   const keyword = searchKeyword.value.trim();
-  console.log(keyword);
+  router.push({
+    name: 'search',
+    query: {keyword},
+  })
 }
 </script>
 

@@ -104,3 +104,24 @@ interface UserPlayListRes {
 		trackCount: number;
 	}[];
 }
+
+interface SearchRes {
+	code: number;
+	result: {
+		hasmore: boolean;
+		songCount: number;
+		songs: {
+			album: {
+				id: number;
+				name: string;
+			};
+			artists: {
+				id: number;
+				name: string;
+			}[];
+			id: number;
+			name: string;
+			duration: number;
+		}[];
+	}
+}

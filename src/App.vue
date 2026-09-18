@@ -30,11 +30,13 @@ const handleLogOut = async () => {
 const searchKeyword = ref('')
 const handleSearch = () => {
   const keyword = searchKeyword.value.trim();
+  if (keyword == '') return;
   router.push({
     name: 'search',
     query: {keyword},
   })
 }
+
 </script>
 
 <template>

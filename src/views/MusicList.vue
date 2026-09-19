@@ -46,7 +46,7 @@ const fomateDuration = (ms: number) => {
     return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 }
 
-const handerlaySongClick = (id: number) => {
+const handerPlaySongClick = (id: number) => {
     if (!id) return;
     router.push({
         name: "player",
@@ -71,7 +71,7 @@ onMounted(() => {
                 class="track-item"
                 v-for="(track, index) in tracks"
                 :key="track.id"
-                @click="handerlaySongClick(track.id)"
+                @click="handerPlaySongClick(track.id)"
                 >
                     <span class="track-index">{{ index + 1 }}</span>
                     <div class="track-main">

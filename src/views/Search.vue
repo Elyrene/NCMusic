@@ -56,8 +56,8 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="musiclist-page">
-        <div class="musiclist-inner">
+    <div class="search-page">
+        <div class="search-inner">
             <h2 class="title">关于 "{{ searchKeyWord }}" 的搜索结果</h2>
             <div v-if="loading" class="tip">歌曲加载中...</div>
             <div v-else-if="!tracks.length" class="tip">暂无歌曲</div>
@@ -85,13 +85,13 @@ onMounted(() => {
 
 <style scoped>
 
-.musiclist-page {
+.search-page {
     min-height: calc(100vh - 90px);
     padding: 24px 32px;
     box-sizing: border-box;
 }
 
-.musiclist-inner {
+.search-inner {
     max-width: 1200px;
     margin: 0 auto;
 }

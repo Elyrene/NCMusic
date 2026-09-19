@@ -113,6 +113,14 @@ const handleNewsongClick = (id: number) => {
   });
 }
 
+const handleSingerClick = (id: number) => {
+  if (!id) return;
+  router.push({
+    name: 'singer',
+    query: {id},
+  })
+}
+
 onMounted(() => {
   // fetchPlaylist();
   // fetchNewSongs();
@@ -176,7 +184,7 @@ onMounted(() => {
               v-show="index == currentSingerSlide"
               >
               <ul class="singer-list">
-                <li v-for="singer in sliders" :key="singer.id" class="singer-item">
+                <li v-for="singer in sliders" :key="singer.id" class="singer-item" @click="handleSingerClick(singer.id)">
                   <div class="singer-avatar">
                     <img :src="singer.avatar" :alt="singer.name">
                   </div>

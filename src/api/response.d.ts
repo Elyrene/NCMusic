@@ -125,3 +125,9 @@ interface SearchRes {
 		}[];
 	}
 }
+
+interface ArtistTopSongRes {
+	code: number;
+	more: boolean;
+	songs: TrakItem[];
+}

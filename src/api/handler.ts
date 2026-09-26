@@ -1,7 +1,7 @@
 type HttpMethod = 'GET' | 'POST' | 'DELET' | 'PUT' | 'PATCH';
 
 interface HttpClientOption {
-    baseURL?: string
+    baseURL?: string;
     headers?: HeadersInit; 
     timeout?: number;
 }
